@@ -33,11 +33,13 @@ function setup() {
 
 function draw() {
   background(BG_COLOR);
+  renderGameBoard(gameBoard);
+}
+
+function renderGameBoard(gameBoard) {
+  let c;
+  noStroke(); 
   
-  let c = FILL_COLOR;
-  noStroke();
-  
-  // Rect placement
   for (let j = 0; j < gameBoard.length; j++) {
     for (let i = 0; i < gameBoard[j].length; i++) {
       
