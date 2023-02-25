@@ -6,8 +6,7 @@ const GAP = 10;
 const BOARD_PADDING_TOP = 30;
 const BOARD_PADDING_LEFT = 20;
 
-const BG_COLOR = '#c7f0d8';
-const FILL_COLOR = '#43523d';
+let BG_COLOR, FILL_COLOR;
 
 const tileState = {
   invisible: 0,
@@ -26,6 +25,8 @@ const gameBoard = [
 function setup() {
   createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
   frameRate(2);
+  BG_COLOR = color('#c7f0d8');
+  FILL_COLOR = color('#43523d');
 }
 
 function draw() {
@@ -33,34 +34,33 @@ function draw() {
   
   // Set the fill colour of the rectangle
   // No outline
-  let c = color(FILL_COLOR);
+  let c = FILL_COLOR;
   noStroke();
   
   // Rect placement
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 5; j++) {
+  for (let j = 0; j < gameBoard.length; j++) {
+    for (let i = 0; i < gameBoard[j].length; i++) {
       
       c = getSquareColor(gameBoard[j][i]);
       
-      fill(c);
       const x = BOARD_PADDING_LEFT + i * SQUARE_WIDTH + (i + 1) * GAP;
       const y = BOARD_PADDING_TOP + j * SQUARE_WIDTH + (j + 1) * GAP;
+      fill(c);
       rect(x, y, SQUARE_WIDTH, SQUARE_WIDTH);
-      c = color(FILL_COLOR);
     }
   }
 }
 
 function getSquareColor(currentSquare) {
   if (currentSquare === tileState.invisible) {
-    return color(BG_COLOR);
+    return BG_COLOR;
   } else if (currentSquare === tileState.tile) {
-    return color(FILL_COLOR);
+    return FILL_COLOR;
   } else if (currentSquare === tileState.selected) {
     if (frameCount % 2 === 0) {
-      return color(BG_COLOR);
+      return BG_COLOR;
     } else {
-      return color(FILL_COLOR);
+      return FILL_COLOR;
     }
   }
 }
