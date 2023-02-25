@@ -1,23 +1,65 @@
+const Painting = () => {
+    let paintSet = new Set();
+
+    const add = ([x, y]) => {
+        paintSet.add(`${x},${y}`);
+    }
+    
+    const reset = () => {
+        paintSet = new Set();
+    }
+
+    const resetWith = ([x, y]) => {
+        paintSet = new Set([`${x},${y}`]);
+    }
+
+    const shift = () => {
+        const painting = getPainting();
+        paintSet = new Set();
+        for (const [i, j] of painting) {
+            if (i > 0) {
+                add([i - 1, j]);
+            }
+        }
+    }
+
+    const getPainting = () => {
+        return Array.from(paintSet).map(p => {
+            const [x, y] = p.split(',');
+            return [parseInt(x), parseInt(y)];
+        });
+    }
+
+    return {
+        add,
+        reset,
+        resetWith,
+        shift,
+        getPainting
+    };
+};
+
 const GameController = () => {
+    let COLUMNS = 10;
+    let ROWS = 7;
 
     let board = [];
 
     let cursor = [0, 0];
     let painting = false;
-    let paint = new Set();
+    const paint = Painting();
 
-    for (let i = 0; i < 5; i++) {
-        board.push(Array(9).fill(TILE));
+    for (let i = 0; i < ROWS; i++) {
+        board.push(Array(COLUMNS).fill(TILE));
     }
 
     const moveXY = (dx, dy) => {
-        cursor[0] = Math.max(0, Math.min(cursor[0] + dy, 5 - 1));
-        cursor[1] = Math.max(0, Math.min(cursor[1] + dx, 9 - 1));
+        cursor[0] = Math.max(0, Math.min(cursor[0] + dy, ROWS - 1));
+        cursor[1] = Math.max(0, Math.min(cursor[1] + dx, COLUMNS - 1));
         const currentTile = board[cursor[0]][cursor[1]];
         if (painting && currentTile == TILE) {
-            paint.add(`${cursor[0]},${cursor[1]}`);
+            paint.add(cursor);
         }
-        console.log(painting, currentTile, paint);
     }
 
     const moveUp = () => {
@@ -38,30 +80,34 @@ const GameController = () => {
 
     const paintStart = () => {
         painting = true;
-        paint = new Set([`${cursor[0]},${cursor[1]}`]);
+        paint.resetWith(cursor);
     };
 
     const paintEnd = () => {
         painting = false;
-        console.log(paint);
-        for (const p of paint) {
-            const [i, j] = p.split(',');
+        for (const [i, j] of paint.getPainting()) {
             board[i][j] = COMPLETE;
         }
-        paint = new Set();
+        paint.reset();
+    };
+
+    const shiftUp = () => {
+        cursor[0] = Math.max(cursor[0] - 1, 0);
+        board.shift();
+        paint.shift();
+        board.push(Array(COLUMNS).fill(TILE));
     };
 
     const getState = () => {
         const state = [];
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < ROWS; i++) {
             state.push([]);
-            for (let j = 0; j < 9; j++) {
+            for (let j = 0; j < COLUMNS; j++) {
                 state[i].push(board[i][j]);
             }
         }
         if (painting) {
-            for (const p of paint) {
-                const [i, j] = p.split(',');
+            for (const [i, j] of paint.getPainting()) {
                 state[i][j] = PAINTED;
             }
             state[cursor[0]][cursor[1]] = CURSOR_PAINTED;
@@ -73,9 +119,10 @@ const GameController = () => {
 
     const printState = () => {
         const boardPrint = getState();
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < ROWS; i++) {
             console.log(boardPrint[i].join(' '));
         }
+        console.log('  ');
     };
 
     return {
@@ -86,6 +133,7 @@ const GameController = () => {
         paintStart,
         paintEnd,
 
+        shiftUp,
         getState,
         printState
     }
